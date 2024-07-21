@@ -3,7 +3,7 @@
     /// <summary>
     /// Обработчик файлов на сервере
     /// </summary>
-    public interface IFileInServerHandler
+    public interface IFileInServerService
     {
         /// <summary>
         /// Сохранить файл на сервере
@@ -18,7 +18,7 @@
         /// <param name="fileName">Имя файла</param>
         /// <param name="directory">Папка для поиска файла</param>
         /// <returns>Файл</returns>
-        IFormFile Get(string fileName, string directory);
+        Task<StreamContent> GetAsync(string fileName, string directory);
 
         /// <summary>
         /// Удалить файл с сервера

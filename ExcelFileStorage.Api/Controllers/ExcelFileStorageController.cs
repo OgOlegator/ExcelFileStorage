@@ -1,45 +1,107 @@
-﻿using ExcelFileStorage.Api.Filters;
+﻿using ExcelFileStorage.Api.Exceptions;
+using ExcelFileStorage.Api.Filters;
 using ExcelFileStorage.Api.Services.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Buffers.Text;
+using System.IO;
+using System.Net;
+using System.Net.Mime;
 
 namespace ExcelFileStorage.Api.Controllers
 {
+    /// <summary>
+    /// Хранилище Excel-файлов
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ExcelFileStorageController : ControllerBase
     {
-        private readonly IFileInServerHandler _fileInServerHandler;
+        private readonly IFileInServerService _fileInServerHandler;
+        private readonly IExcelRebuilderService _excelRebuilderService;
 
-        public ExcelFileStorageController(IFileInServerHandler fileInServerHandler)
+        public ExcelFileStorageController(IFileInServerService fileInServerHandler, IExcelRebuilderService excelRebuilderService)
         {
             _fileInServerHandler = fileInServerHandler;
+            _excelRebuilderService = excelRebuilderService;
         }
 
+        /// <summary>
+        /// Загрузить файл на сервер
+        /// </summary>
+        /// <param name="file">Excel-файл. Поддерживаемые форматы - .xlsx/.xls </param>
+        /// <returns>Имя файла на сервере</returns>
         [HttpPost]
-        [CheckExcelFileFilter]
-        public async Task<IResult> UploadAsync(IFormFile file)
+        [Route("upload")]
+        [FileValidationFilter(new string[] { ".xlsx", ".xls" })]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadAsync(IFormFile file)
         {
-            await _fileInServerHandler.SaveAsync(file, Constants.UploadsExcelFilesDirecoryName);
+            try
+            {
+                var newFile = await _excelRebuilderService.SetFile(file).Rebuild();
 
-            return Results.Ok();
+                await _fileInServerHandler.SaveAsync(newFile, Constants.UploadsExcelFilesDirecoryName);
+
+                return Ok(newFile.FileName);
+            }
+            catch (ExcelFileStorageException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        /// <summary>
+        /// Скачать файл с сервера
+        /// </summary>
+        /// <param name="name">Имя файла</param>
+        /// <returns>Файл</returns>
         [HttpGet]
-        public async Task<IResult> GetByNameAsync(string name)
+        [Route("download")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DownloadAsync(string name)
         {
-            var file = _fileInServerHandler.Get(name, Constants.UploadsExcelFilesDirecoryName);
+            try
+            {
+                var content = await _fileInServerHandler.GetAsync(name, Constants.UploadsExcelFilesDirecoryName);
 
-            return Results.Ok(file);
+                return File(await content.ReadAsByteArrayAsync(), content.Headers.ContentType.MediaType, name);
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ExcelFileStorageException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        /// <summary>
+        /// Удалить файла с сервера
+        /// </summary>
+        /// <param name="name">Имя файла</param>
+        /// <returns>Результат операции</returns>
         [HttpDelete]
-        public async Task<IResult> DeleteAsync(string name)
+        [Route("delete")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteAsync(string name)
         {
-            _fileInServerHandler.Delete(name, Constants.UploadsExcelFilesDirecoryName);
+            try 
+            { 
+                _fileInServerHandler.Delete(name, Constants.UploadsExcelFilesDirecoryName);
 
-            return Results.Ok();
+                return Ok();
+            }
+            catch (ExcelFileStorageException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
