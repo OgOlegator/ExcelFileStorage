@@ -3,19 +3,19 @@
     /// <summary>
     /// Сервис переработки Excel-файла
     /// </summary>
-    public interface IExcelRebuilderService
+    public interface IExcelRebuilder
     {
         /// <summary>
         /// Установить файл для переработки
         /// </summary>
         /// <param name="file">Файл</param>
         /// <returns>Инстанция данного класса</returns>
-        IExcelRebuilderService SetFile(IFormFile file);
+        IExcelRebuilder SetFile(IFormFile file);
 
         /// <summary>
         /// Переработать файл
         /// </summary>
         /// <returns>Новый файл</returns>
-        Task<IFormFile> Rebuild();
+        Task<IFormFile> RebuildAsync();
     }
 }

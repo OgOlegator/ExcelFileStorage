@@ -1,5 +1,6 @@
 ﻿using ExcelFileStorage.Api.Exceptions;
 using ExcelFileStorage.Api.Services.IServices;
+using ExcelFileStorage.Api.Validators;
 using System.IO;
 using System.Net;
 
@@ -8,7 +9,7 @@ namespace ExcelFileStorage.Api.Services
     /// <summary>
     /// Обработчик файлов на сервере
     /// </summary>
-    public class FileInServerService : IFileInServerService
+    public class FileOnServer : IFileOnServer
     {
         /// <summary>
         /// Удалить файл с сервера
@@ -57,7 +58,7 @@ namespace ExcelFileStorage.Api.Services
             
                 var memory = new MemoryStream();
 
-                using (var stream = new FileStream(filePath, FileMode.Open))
+                using (var stream = File.OpenRead(filePath))
                     await stream.CopyToAsync(memory);
 
                 memory.Position = 0;
@@ -94,7 +95,7 @@ namespace ExcelFileStorage.Api.Services
 
                 string fullPath = Path.Combine(pathToSave, file.FileName);
 
-                using FileStream stream = new(fullPath, FileMode.Create);
+                using var stream = File.Create(fullPath);
 
                 await file.CopyToAsync(stream);
             }
@@ -102,6 +103,24 @@ namespace ExcelFileStorage.Api.Services
             {
                 throw new ExcelFileStorageException($"Ошибка при сохранении файла {file.FileName}", ex);
             }
+        }
+
+        public void CreateOrWriteToEnd(string fileName, string directory, string data)
+        {
+            var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), directory);
+
+            if (!Directory.Exists(pathToSave))
+                Directory.CreateDirectory(pathToSave);
+
+            var filePath = Path.Combine(pathToSave, fileName);
+
+            if (!FileValidator.IsFileExtensionAllowed(fileName, new string[] { ".txt" }))
+                throw new ExcelFileStorageException($"Запись в конец возможна только для текстовых файлов");
+
+            if(!File.Exists(filePath))
+                File.Create(filePath);
+
+            File.AppendAllText(filePath, data + Environment.NewLine);
         }
 
         /// <summary>

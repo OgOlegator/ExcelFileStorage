@@ -3,7 +3,7 @@
     /// <summary>
     /// Обработчик файлов на сервере
     /// </summary>
-    public interface IFileInServerService
+    public interface IFileOnServer
     {
         /// <summary>
         /// Сохранить файл на сервере
@@ -26,5 +26,13 @@
         /// <param name="fileName">Имя файла</param>
         /// <param name="directory">Папка для поиска файла</param>
         void Delete(string fileName, string directory);
+
+        /// <summary>
+        /// Создать файл или записать в конец файла на сервере. Для текстовых файлов
+        /// </summary>
+        /// <param name="fileName">Имя файла</param>
+        /// <param name="directory">Папка для поиска файла</param>
+        /// <param name="data">Данные для записи</param>
+        void CreateOrWriteToEnd(string fileName, string directory, string data);
     }
 }

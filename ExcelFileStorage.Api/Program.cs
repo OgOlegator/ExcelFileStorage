@@ -6,9 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddScoped<IFileInServerService, FileInServerService>();
+builder.Services.AddHttpClient<IHttpbinReportBuilder, HttpbinReportBuilder>();
+
+builder.Services.AddTransient<IFileOnServer, FileOnServer>();
+builder.Services.AddTransient<IExcelRebuilder, ExcelRebuilder>();
+builder.Services.AddTransient<IHttpbinReportBuilder, HttpbinReportBuilder>();
+
 builder.Services.AddScoped<IAppLogger, AppFileLogger>();
-builder.Services.AddTransient<IExcelRebuilderService, ExcelRebuilderService>();
 
 builder.Services.AddControllers();
 

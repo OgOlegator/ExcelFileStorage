@@ -12,8 +12,17 @@
         /// <param name="allowedExtensions">Допустимые расширения</param>
         /// <returns>Результат проверки</returns>
         public static bool IsFileExtensionAllowed(IFormFile file, string[] allowedExtensions)
+            => IsFileExtensionAllowed(file.FileName, allowedExtensions);
+
+        /// <summary>
+        /// Проверка расширения файла
+        /// </summary>
+        /// <param name="fileName">Файл</param>
+        /// <param name="allowedExtensions">Допустимые расширения</param>
+        /// <returns>Результат проверки</returns>
+        public static bool IsFileExtensionAllowed(string fileName, string[] allowedExtensions)
         {
-            var extension = Path.GetExtension(file.FileName);
+            var extension = Path.GetExtension(fileName);
 
             return allowedExtensions.Contains(extension);
         }

@@ -10,18 +10,14 @@ namespace ExcelFileStorage.Api.Services
     public class AppFileLogger : IAppLogger
     {
         private static object _lock = new object();
-        private readonly string _filePath;
 
         private const string _logFileName = "AppLog.txt";
 
-        public AppFileLogger()
+        private readonly IFileOnServer _fileOnServer;
+
+        public AppFileLogger(IFileOnServer fileOnServer)
         {
-            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), Constants.LogsDirecoryName);
-
-            if (!Directory.Exists(directoryPath))
-                Directory.CreateDirectory(directoryPath);
-
-            _filePath= Path.Combine(directoryPath, _logFileName);
+            _fileOnServer = fileOnServer;
         }
 
         public void Log(string message, Dictionary<string, object> parameters = null)
@@ -34,7 +30,7 @@ namespace ExcelFileStorage.Api.Services
 
             lock (_lock)
             {
-                File.AppendAllText(_filePath, logMsgDetailsJson + Environment.NewLine);
+                _fileOnServer.CreateOrWriteToEnd(_logFileName, Constants.LogsDirecoryName, logMsgDetailsJson);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using ExcelFileStorage.Api.Exceptions;
 using ExcelFileStorage.Api.Filters;
+using ExcelFileStorage.Api.Services;
 using ExcelFileStorage.Api.Services.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,13 +19,15 @@ namespace ExcelFileStorage.Api.Controllers
     [ApiController]
     public class ExcelFileStorageController : ControllerBase
     {
-        private readonly IFileInServerService _fileInServerHandler;
-        private readonly IExcelRebuilderService _excelRebuilderService;
+        private readonly IFileOnServer _fileOnServer;
+        private readonly IExcelRebuilder _excelRebuilder;
+        private readonly IHttpbinReportBuilder _httpbinReportBuilder;
 
-        public ExcelFileStorageController(IFileInServerService fileInServerHandler, IExcelRebuilderService excelRebuilderService)
+        public ExcelFileStorageController(IFileOnServer fileOnServer, IExcelRebuilder excelRebuilder, IHttpbinReportBuilder httpbinReportBuilder)
         {
-            _fileInServerHandler = fileInServerHandler;
-            _excelRebuilderService = excelRebuilderService;
+            _fileOnServer = fileOnServer;
+            _excelRebuilder = excelRebuilder;
+            _httpbinReportBuilder = httpbinReportBuilder;
         }
 
         /// <summary>
@@ -41,9 +44,11 @@ namespace ExcelFileStorage.Api.Controllers
         {
             try
             {
-                var newFile = await _excelRebuilderService.SetFile(file).Rebuild();
+                var newFile = await _excelRebuilder.SetFile(file).RebuildAsync();
 
-                await _fileInServerHandler.SaveAsync(newFile, Constants.UploadsExcelFilesDirecoryName);
+                await _fileOnServer.SaveAsync(newFile, Constants.UploadsExcelFilesDirecoryName);
+
+                await _httpbinReportBuilder.BuildAsync(newFile);                
 
                 return Ok(newFile.FileName);
             }
@@ -67,7 +72,7 @@ namespace ExcelFileStorage.Api.Controllers
         {
             try
             {
-                var content = await _fileInServerHandler.GetAsync(name, Constants.UploadsExcelFilesDirecoryName);
+                var content = await _fileOnServer.GetAsync(name, Constants.UploadsExcelFilesDirecoryName);
 
                 return File(await content.ReadAsByteArrayAsync(), content.Headers.ContentType.MediaType, name);
             }
@@ -90,11 +95,11 @@ namespace ExcelFileStorage.Api.Controllers
         [Route("delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteAsync(string name)
+        public IActionResult Delete(string name)
         {
             try 
             { 
-                _fileInServerHandler.Delete(name, Constants.UploadsExcelFilesDirecoryName);
+                _fileOnServer.Delete(name, Constants.UploadsExcelFilesDirecoryName);
 
                 return Ok();
             }
