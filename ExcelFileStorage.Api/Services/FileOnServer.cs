@@ -95,9 +95,16 @@ namespace ExcelFileStorage.Api.Services
 
                 string fullPath = Path.Combine(pathToSave, file.FileName);
 
+                if (File.Exists(fullPath))
+                    throw new ExcelFileStorageException($"Файл с таким именем уже сохранен на сервере");
+
                 using var stream = File.Create(fullPath);
 
                 await file.CopyToAsync(stream);
+            }
+            catch (ExcelFileStorageException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -107,6 +114,9 @@ namespace ExcelFileStorage.Api.Services
 
         public void CreateOrWriteToEnd(string fileName, string directory, string data)
         {
+            if (!FileValidator.IsFileExtensionAllowed(fileName, new string[] { ".txt" }))
+                throw new ExcelFileStorageException($"Запись в конец возможна только для текстовых файлов");
+
             var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), directory);
 
             if (!Directory.Exists(pathToSave))
@@ -114,12 +124,10 @@ namespace ExcelFileStorage.Api.Services
 
             var filePath = Path.Combine(pathToSave, fileName);
 
-            if (!FileValidator.IsFileExtensionAllowed(fileName, new string[] { ".txt" }))
-                throw new ExcelFileStorageException($"Запись в конец возможна только для текстовых файлов");
-
             if(!File.Exists(filePath))
                 File.Create(filePath);
 
+            //TODO Не работает при построении отчета!!!
             File.AppendAllText(filePath, data + Environment.NewLine);
         }
 

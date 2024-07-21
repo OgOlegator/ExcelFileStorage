@@ -363,6 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Файлы из хранилища не грузятся
-FileStorage/
-# Логи приложения не грузятся
-Logs/
+ServerStorage/

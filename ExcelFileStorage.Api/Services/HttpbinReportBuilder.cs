@@ -6,9 +6,6 @@ using System.Text.Json;
 
 namespace ExcelFileStorage.Api.Services
 {
-    /// <summary>
-    /// Формирование отчетов от сайта https://httpbin.org/
-    /// </summary>
     public class HttpbinReportBuilder : IHttpbinReportBuilder
     {
         private readonly IFileOnServer _fileOnServer;
@@ -26,7 +23,7 @@ namespace ExcelFileStorage.Api.Services
 
             var report = await GetReportAsync(fileInBase64);
 
-            _fileOnServer.CreateOrWriteToEnd(Guid.NewGuid().ToString(), Constants.HttpbinResponsesDirecoryName, report);
+            _fileOnServer.CreateOrWriteToEnd(GetFileName(file.FileName), Constants.HttpbinResponsesDirecoryName, report);
         }
 
         /// <summary>
@@ -71,5 +68,13 @@ namespace ExcelFileStorage.Api.Services
                 responseContent
             });
         }
+
+        /// <summary>
+        /// Формирование имени файла отчета
+        /// </summary>
+        /// <param name="sourceFileName">Имя файла, для которого формируется отчет</param>
+        /// <returns>Имя файла отчета</returns>
+        private string GetFileName(string sourceFileName)
+            => Path.GetFileNameWithoutExtension(sourceFileName) + "_HttpbinReport_" + DateTime.Now.ToString("yyyyy-mm-dd_hh-mm-ss") + ".txt";
     }
 }
