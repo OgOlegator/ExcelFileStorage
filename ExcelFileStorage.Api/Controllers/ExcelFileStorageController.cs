@@ -44,7 +44,7 @@ namespace ExcelFileStorage.Api.Controllers
         {
             try
             {
-                var newFile = await _excelRebuilder.SetFile(file).RebuildAsync();
+                var newFile = await _excelRebuilder.RebuildAsync(file);
 
                 await _fileOnServer.SaveAsync(newFile, Constants.UploadsExcelFilesDirecoryName);
 
