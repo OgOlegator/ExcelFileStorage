@@ -20,10 +20,10 @@ namespace ExcelFileStorage.Api.Controllers
     public class ExcelFileStorageController : ControllerBase
     {
         private readonly IFileOnServer _fileOnServer;
-        private readonly IExcelRebuilder _excelRebuilder;
+        private readonly IFileRebuilder _excelRebuilder;
         private readonly IHttpbinReportBuilder _httpbinReportBuilder;
 
-        public ExcelFileStorageController(IFileOnServer fileOnServer, IExcelRebuilder excelRebuilder, IHttpbinReportBuilder httpbinReportBuilder)
+        public ExcelFileStorageController(IFileOnServer fileOnServer, IFileRebuilder excelRebuilder, IHttpbinReportBuilder httpbinReportBuilder)
         {
             _fileOnServer = fileOnServer;
             _excelRebuilder = excelRebuilder;
@@ -44,7 +44,7 @@ namespace ExcelFileStorage.Api.Controllers
         {
             try
             {
-                var newFile = await _excelRebuilder.SetFile(file).RebuildAsync();
+                var newFile = await _excelRebuilder.RebuildAsync(file);
 
                 await _fileOnServer.SaveAsync(newFile, Constants.UploadsExcelFilesDirecoryName);
 
@@ -102,6 +102,10 @@ namespace ExcelFileStorage.Api.Controllers
                 _fileOnServer.Delete(name, Constants.UploadsExcelFilesDirecoryName);
 
                 return Ok();
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (ExcelFileStorageException ex)
             {
