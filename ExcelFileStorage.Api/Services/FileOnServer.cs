@@ -55,7 +55,8 @@ namespace ExcelFileStorage.Api.Services
 
                 if (!File.Exists(filePath))
                     throw new FileNotFoundException($"Не найден файл {fileName}");
-            
+                
+                //Не уничтожаем поток, чтобы не затереть файл до окончания запроса
                 var memory = new MemoryStream();
 
                 using (var stream = File.OpenRead(filePath))
@@ -124,10 +125,9 @@ namespace ExcelFileStorage.Api.Services
 
             var filePath = Path.Combine(pathToSave, fileName);
 
-            if(!File.Exists(filePath))
-                File.Create(filePath);
-
-            //TODO Не работает при построении отчета!!!
+            if (!File.Exists(filePath))
+                File.Create(filePath).Dispose();    //Уничтажаем поток, освобождая файл для записи данных далее по коду
+            
             File.AppendAllText(filePath, data + Environment.NewLine);
         }
 

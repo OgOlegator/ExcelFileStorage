@@ -1,9 +1,9 @@
 ﻿namespace ExcelFileStorage.Api.Services.IServices
 {
     /// <summary>
-    /// Сервис переработки Excel-файла
+    /// Сервис переработки файла
     /// </summary>
-    public interface IExcelRebuilder
+    public interface IFileRebuilder
     {
         /// <summary>
         /// Переработать файл

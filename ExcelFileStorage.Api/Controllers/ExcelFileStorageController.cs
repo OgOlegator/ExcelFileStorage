@@ -20,10 +20,10 @@ namespace ExcelFileStorage.Api.Controllers
     public class ExcelFileStorageController : ControllerBase
     {
         private readonly IFileOnServer _fileOnServer;
-        private readonly IExcelRebuilder _excelRebuilder;
+        private readonly IFileRebuilder _excelRebuilder;
         private readonly IHttpbinReportBuilder _httpbinReportBuilder;
 
-        public ExcelFileStorageController(IFileOnServer fileOnServer, IExcelRebuilder excelRebuilder, IHttpbinReportBuilder httpbinReportBuilder)
+        public ExcelFileStorageController(IFileOnServer fileOnServer, IFileRebuilder excelRebuilder, IHttpbinReportBuilder httpbinReportBuilder)
         {
             _fileOnServer = fileOnServer;
             _excelRebuilder = excelRebuilder;

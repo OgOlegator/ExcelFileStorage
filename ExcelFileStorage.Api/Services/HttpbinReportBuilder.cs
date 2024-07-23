@@ -75,6 +75,6 @@ namespace ExcelFileStorage.Api.Services
         /// <param name="sourceFileName">Имя файла, для которого формируется отчет</param>
         /// <returns>Имя файла отчета</returns>
         private string GetFileName(string sourceFileName)
-            => Path.GetFileNameWithoutExtension(sourceFileName) + DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss") + ".txt";
+            => Path.GetFileNameWithoutExtension(sourceFileName) + "_report" + ".txt";
     }
 }

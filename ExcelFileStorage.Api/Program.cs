@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<IHttpbinReportBuilder, HttpbinReportBuilder>();
 
 builder.Services.AddTransient<IFileOnServer, FileOnServer>();
-builder.Services.AddTransient<IExcelRebuilder, ExcelRebuilder>();
+builder.Services.AddTransient<IFileRebuilder, ExcelRebuilder>();
 builder.Services.AddTransient<IHttpbinReportBuilder, HttpbinReportBuilder>();
 
 builder.Services.AddScoped<IAppLogger, AppFileLogger>();
