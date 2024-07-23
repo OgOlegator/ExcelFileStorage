@@ -9,7 +9,7 @@ namespace ExcelFileStorage.Api.Services
     /// </summary>
     public class AppFileLogger : IAppLogger
     {
-        private static object _lock = new object();
+        private object _lock = new object();
 
         private const string _logFileName = "AppLog.txt";
 

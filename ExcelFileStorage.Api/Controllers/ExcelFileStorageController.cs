@@ -103,6 +103,10 @@ namespace ExcelFileStorage.Api.Controllers
 
                 return Ok();
             }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
             catch (ExcelFileStorageException ex)
             {
                 return BadRequest(ex.Message);

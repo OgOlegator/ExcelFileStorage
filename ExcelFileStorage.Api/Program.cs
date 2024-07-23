@@ -1,3 +1,4 @@
+using ExcelFileStorage.Api.Middlewares;
 using ExcelFileStorage.Api.Services;
 using ExcelFileStorage.Api.Services.IServices;
 using System.Reflection;
@@ -12,7 +13,7 @@ builder.Services.AddTransient<IFileOnServer, FileOnServer>();
 builder.Services.AddTransient<IFileRebuilder, ExcelRebuilder>();
 builder.Services.AddTransient<IHttpbinReportBuilder, HttpbinReportBuilder>();
 
-builder.Services.AddScoped<IAppLogger, AppFileLogger>();
+builder.Services.AddSingleton<IAppLogger, AppFileLogger>();
 
 builder.Services.AddControllers();
 
@@ -37,6 +38,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 app.MapControllers();
 
