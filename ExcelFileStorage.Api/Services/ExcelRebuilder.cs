@@ -37,6 +37,11 @@ namespace ExcelFileStorage.Api.Services
             }
         }
 
+        /// <summary>
+        /// Получить новое имя файла
+        /// </summary>
+        /// <param name="fileName">Имя файла</param>
+        /// <returns>Новое имя файла</returns>
         private string GetNewFileName(string fileName)
             => Path.GetFileNameWithoutExtension(fileName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss") + Path.GetExtension(fileName);
     }

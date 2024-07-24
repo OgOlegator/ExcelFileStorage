@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.InkML;
-using ExcelFileStorage.Api.Services.IServices;
-using Microsoft.AspNetCore.Http;
+﻿using ExcelFileStorage.Api.Services.IServices;
 
 namespace ExcelFileStorage.Api.Middlewares
 {
@@ -157,6 +155,11 @@ namespace ExcelFileStorage.Api.Middlewares
             return responseBodyText;
         }
 
+        /// <summary>
+        /// Текстовый контент?
+        /// </summary>
+        /// <param name="contentType">Тип контента</param>
+        /// <returns>Ответ</returns>
         private bool IsBodyWithText(string contentType)
             => contentType == "application/json; charset=utf-8"
             || contentType == "text/plain; charset=utf-8";

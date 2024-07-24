@@ -1,14 +1,7 @@
 ﻿using ExcelFileStorage.Api.Exceptions;
 using ExcelFileStorage.Api.Filters;
-using ExcelFileStorage.Api.Services;
 using ExcelFileStorage.Api.Services.IServices;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Buffers.Text;
-using System.IO;
-using System.Net;
-using System.Net.Mime;
 
 namespace ExcelFileStorage.Api.Controllers
 {
@@ -95,6 +88,7 @@ namespace ExcelFileStorage.Api.Controllers
         [Route("delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Delete(string name)
         {
             try 
