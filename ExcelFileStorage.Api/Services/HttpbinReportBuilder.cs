@@ -10,14 +10,12 @@ namespace ExcelFileStorage.Api.Services
 {
     public class HttpbinReportBuilder : IHttpbinReportBuilder
     {
-        private readonly IFileOnServer _fileOnServer;
         private readonly IHttpClientFactory _httpClient;
 
         private IFormFile _file;
 
-        public HttpbinReportBuilder(IHttpClientFactory httpClientFactory, IFileOnServer fileOnServer)
+        public HttpbinReportBuilder(IHttpClientFactory httpClientFactory)
         {
-            _fileOnServer = fileOnServer;
             _httpClient = httpClientFactory;
         }
 
