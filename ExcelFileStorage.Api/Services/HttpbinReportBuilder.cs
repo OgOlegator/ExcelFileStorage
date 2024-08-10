@@ -1,4 +1,5 @@
-﻿using ExcelFileStorage.Api.Services.IServices;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ExcelFileStorage.Api.Services.IServices;
 using System;
 using System.Buffers.Text;
 using System.IO;
@@ -11,19 +12,28 @@ namespace ExcelFileStorage.Api.Services
         private readonly IFileOnServer _fileOnServer;
         private readonly IHttpClientFactory _httpClient;
 
+        private IFormFile _file;
+
         public HttpbinReportBuilder(IHttpClientFactory httpClientFactory, IFileOnServer fileOnServer)
         {
             _fileOnServer = fileOnServer;
             _httpClient = httpClientFactory;
         }
 
-        public async Task BuildAsync(IFormFile file)
+        public IFileBuilder SetFile(IFormFile file)
         {
-            var fileInBase64 = ConvertFileToBase64(file);
+            _file = file;
+
+            return this;
+        }
+
+        public async Task<IFormFile> BuildAsync()
+        {
+            var fileInBase64 = ConvertFileToBase64(_file);
 
             var report = await GetReportAsync(fileInBase64);
 
-            _fileOnServer.CreateOrWriteToEnd(GetFileName(file.FileName), Constants.HttpbinResponsesDirecoryName, report);
+            return await BuildNewFileAsync(report, GetFileName(_file.FileName));
         }
 
         /// <summary>
@@ -76,5 +86,26 @@ namespace ExcelFileStorage.Api.Services
         /// <returns>Имя файла отчета</returns>
         private string GetFileName(string sourceFileName)
             => Path.GetFileNameWithoutExtension(sourceFileName) + "_report" + ".txt";
+
+        /// <summary>
+        /// Формирование нового файла
+        /// </summary>
+        /// <param name="data">Данные файла</param>
+        /// <param name="newFileName">Имя нового файла</param>
+        /// <returns>Файл</returns>
+        private async Task<IFormFile> BuildNewFileAsync(string data, string newFileName)
+        {
+            var memory = new MemoryStream();
+
+            var streamWritter = new StreamWriter(memory);
+
+            await streamWritter.WriteAsync(data);
+
+            streamWritter.Flush(); //otherwise you are risking empty stream
+
+            memory.Seek(0, SeekOrigin.Begin);
+
+            return new FormFile(memory, 0, memory.Length, Path.GetFileNameWithoutExtension(newFileName), newFileName);
+        }
     }
 }

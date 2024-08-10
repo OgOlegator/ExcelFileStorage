@@ -9,17 +9,13 @@ namespace ExcelFileStorage.Api.Services
     /// </summary>
     public class ExcelRebuilder : IFileRebuilder
     {
-        /// <summary>
-        /// Переработка входящего Excel-файла - транспонирование
-        /// </summary>
-        /// <param name="file">Excel-файл</param>
-        /// <returns>Новый файл</returns>
-        /// <exception cref="ExcelFileStorageException">Ошибка</exception>
-        public async Task<IFormFile> RebuildAsync(IFormFile file)
+        private IFormFile _file;
+
+        public async Task<IFormFile> BuildAsync()
         {
             try
             {
-                using var workbook = new XLWorkbook(file.OpenReadStream());
+                using var workbook = new XLWorkbook(_file.OpenReadStream());
 
                 foreach (var worksheet in workbook.Worksheets)
                     worksheet.RangeUsed().Transpose(XLTransposeOptions.MoveCells);
@@ -29,12 +25,19 @@ namespace ExcelFileStorage.Api.Services
                 //Не уничтожаем поток, чтобы не затереть файл до окончания запроса
                 workbook.SaveAs(memory);
 
-                return new FormFile(memory, 0, memory.Length, file.Name, GetNewFileName(file.FileName));
+                return new FormFile(memory, 0, memory.Length, _file.Name, GetNewFileName(_file.FileName));
             }
-            catch 
+            catch
             {
-                throw new ExcelFileStorageException($"Ошибка при преобразовании файла {file.FileName}");
+                throw new ExcelFileStorageException($"Ошибка при преобразовании файла {_file.FileName}");
             }
+        }
+
+        public IFileBuilder SetFile(IFormFile file)
+        {
+            _file = file;
+
+            return this;
         }
 
         /// <summary>

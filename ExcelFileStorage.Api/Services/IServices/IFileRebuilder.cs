@@ -3,12 +3,7 @@
     /// <summary>
     /// Сервис переработки файла
     /// </summary>
-    public interface IFileRebuilder
+    public interface IFileRebuilder : IFileBuilder
     {
-        /// <summary>
-        /// Переработать файл
-        /// </summary>
-        /// <returns>Новый файл</returns>
-        Task<IFormFile> RebuildAsync(IFormFile file);
     }
 }

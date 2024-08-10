@@ -1,4 +1,5 @@
-﻿using ExcelFileStorage.Api.Exceptions;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using ExcelFileStorage.Api.Exceptions;
 using ExcelFileStorage.Api.Filters;
 using ExcelFileStorage.Api.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
@@ -37,11 +38,17 @@ namespace ExcelFileStorage.Api.Controllers
         {
             try
             {
-                var newFile = await _excelRebuilder.RebuildAsync(file);
+                var newFile = await _excelRebuilder
+                    .SetFile(file)
+                    .BuildAsync();
 
                 await _fileOnServer.SaveAsync(newFile, Constants.UploadsExcelFilesDirecoryName);
 
-                await _httpbinReportBuilder.BuildAsync(newFile);                
+                var httpBinReport = await _httpbinReportBuilder
+                    .SetFile(newFile)
+                    .BuildAsync();
+
+                await _fileOnServer.SaveAsync(httpBinReport, Constants.HttpbinResponsesDirecoryName);
 
                 return Ok(newFile.FileName);
             }
