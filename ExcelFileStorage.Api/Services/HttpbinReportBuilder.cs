@@ -3,6 +3,7 @@ using ExcelFileStorage.Api.Services.IServices;
 using System;
 using System.Buffers.Text;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 
 namespace ExcelFileStorage.Api.Services
@@ -33,7 +34,7 @@ namespace ExcelFileStorage.Api.Services
 
             var report = await GetReportAsync(fileInBase64);
 
-            return await BuildNewFileAsync(report, GetFileName(_file.FileName));
+            return BuildNewFile(report, GetFileName(_file.FileName));
         }
 
         /// <summary>
@@ -93,17 +94,9 @@ namespace ExcelFileStorage.Api.Services
         /// <param name="data">Данные файла</param>
         /// <param name="newFileName">Имя нового файла</param>
         /// <returns>Файл</returns>
-        private async Task<IFormFile> BuildNewFileAsync(string data, string newFileName)
+        private IFormFile BuildNewFile(string data, string newFileName)
         {
-            var memory = new MemoryStream();
-
-            var streamWritter = new StreamWriter(memory);
-
-            await streamWritter.WriteAsync(data);
-
-            streamWritter.Flush(); //otherwise you are risking empty stream
-
-            memory.Seek(0, SeekOrigin.Begin);
+            var memory = new MemoryStream(UTF8Encoding.Default.GetBytes(data));
 
             return new FormFile(memory, 0, memory.Length, Path.GetFileNameWithoutExtension(newFileName), newFileName);
         }
